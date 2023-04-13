@@ -8,7 +8,7 @@ namespace BackEndWebShop.Controllers
 {
     public class AccountController : ControllerBase
     {
-        private readonly IAccountRepository accountRepo;
+        private readonly IAccountRepository accountRepo;                                                                                                                     
 
         public AccountController(IAccountRepository repo)
         {
@@ -25,12 +25,6 @@ namespace BackEndWebShop.Controllers
 
             return Unauthorized();
         }
-
-        public async Task<IActionResult> index()
-        {
-            return Ok();
-        }
-
         [HttpPost("SignIn")]
         public async Task<IActionResult> SignIn(SignInModel signInModel)
         {
