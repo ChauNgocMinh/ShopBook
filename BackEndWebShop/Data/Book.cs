@@ -14,4 +14,6 @@ public partial class Book
     public int Price { get; set; }
 
     public int? Status { get; set; }
+
+    public virtual ICollection<CartItem> CartItems { get; } = new List<CartItem>();
 }
