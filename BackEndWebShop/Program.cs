@@ -15,10 +15,10 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddDbContext<BookShopContext>(option => option.UseSqlServer(builder.Configuration.GetConnectionString("MyStore")));
-
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<BookShopContext>().AddDefaultTokenProviders();
+builder.Services.AddDbContext<BookShopContext>(option => option.UseSqlServer(builder.Configuration.GetConnectionString("MyStore")));
+
 
 //Setting auto mapper
 builder.Services.AddAutoMapper(typeof(Program));

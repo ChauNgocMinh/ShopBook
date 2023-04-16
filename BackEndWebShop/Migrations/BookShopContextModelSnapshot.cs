@@ -125,6 +125,36 @@ namespace BackEndWebShop.Migrations
                     b.ToTable("BOOK", (string)null);
                 });
 
+            modelBuilder.Entity("BackEndWebShop.Data.CartItem", b =>
+            {
+                b.Property<string>("IdCartItem")
+                    .HasMaxLength(10)
+                    .HasColumnType("nvarchar(10)")
+                    .HasColumnName("ID_CART_ITEM");
+
+                b.Property<string>("IdBook")
+                    .HasMaxLength(10)
+                    .HasColumnType("nvarchar(10)")
+                    .HasColumnName("ID_BOOK");
+
+                b.Property<string>("IdUser")
+                    .HasMaxLength(10)
+                    .HasColumnType("nvarchar(10)")
+                    .HasColumnName("ID_USER");
+
+                b.Property<int?>("Number")
+                    .HasColumnType("int")
+                    .HasColumnName("NUMBER");
+
+                b.Property<int?>("TotalItem")
+                    .HasColumnType("int")
+                    .HasColumnName("TOTAL_ITEM");
+
+                b.HasKey("IdCartItem");
+
+                b.ToTable("CartItem", (string)null);
+            });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
