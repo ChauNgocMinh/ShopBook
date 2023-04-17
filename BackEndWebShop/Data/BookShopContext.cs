@@ -28,8 +28,6 @@ public partial class BookShopContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<AspNetUserToken> AspNetUserTokens { get; set; }
 
-    public virtual DbSet<AspNetUserRole> AspNetUserRoles { get; set; }
-
     public virtual DbSet<Book> Books { get; set; }
 
     public virtual DbSet<CartItem> CartItems { get; set; }
@@ -39,16 +37,6 @@ public partial class BookShopContext : IdentityDbContext<ApplicationUser>
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<AspNetUserRole>(entity =>
-        {
-            entity.HasKey(e => new
-            {
-                e.RoleId,
-                e.UserId
-            });
-           
-        });
-
         modelBuilder.Entity<AspNetRole>(entity =>
         {
             entity.HasIndex(e => e.NormalizedName, "RoleNameIndex")
@@ -79,17 +67,17 @@ public partial class BookShopContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.NormalizedUserName).HasMaxLength(256);
             entity.Property(e => e.UserName).HasMaxLength(256);
 
-           /* entity.HasMany(d => d.AspNetUserRoles).WithMany(p => p.UserId)
+            entity.HasMany(d => d.Roles).WithMany(p => p.Users)
                 .UsingEntity<Dictionary<string, object>>(
                     "AspNetUserRole",
-                    r => r.HasOne<AspNetUserRole>().WithMany().HasForeignKey("RoleId"),
+                    r => r.HasOne<AspNetRole>().WithMany().HasForeignKey("RoleId"),
                     l => l.HasOne<AspNetUser>().WithMany().HasForeignKey("UserId"),
                     j =>
                     {
                         j.HasKey("UserId", "RoleId");
                         j.ToTable("AspNetUserRoles");
                         j.HasIndex(new[] { "RoleId" }, "IX_AspNetUserRoles_RoleId");
-                    });*/
+                    });
         });
 
         modelBuilder.Entity<AspNetUserClaim>(entity =>
