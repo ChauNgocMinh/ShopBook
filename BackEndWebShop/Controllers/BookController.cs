@@ -34,13 +34,50 @@ namespace BackEndWebShop.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetBook(string id)
+        public async Task<ActionResult> GetBookById(string id)
         {
             if (id != null)
             {
-                return Ok(await _BookRepo.GetByIdBookAsync(id));
+                return Ok(await _BookRepo.GetBookByIdAsync(id));
             }
             else {
+                return BadRequest();
+            }
+        }
+
+        [HttpGet("{NameBook}")]
+        public async Task<ActionResult> GetBookByName(string NameBook)
+        {
+            if (NameBook != null)
+            {
+                return Ok(await _BookRepo.GetBookByNameAsync(NameBook));
+            }
+            else
+            {
+                return BadRequest();
+            }
+        }
+        [HttpGet("{Category}")]
+        public async Task<ActionResult> GetBookByCategory(string Category)
+        {
+            if (Category != null)
+            {
+                return Ok(await _BookRepo.GetByCategoryAsync(Category));
+            }
+            else
+            {
+                return BadRequest();
+            }
+        }
+        [HttpGet("{PublishingCompany}")]
+        public async Task<ActionResult> GetBookByPublishingCompany(string PublishingCompany)
+        {
+            if (PublishingCompany != null)
+            {
+                return Ok(await _BookRepo.GetByPublishingCompanyAsync(PublishingCompany));
+            }
+            else
+            {
                 return BadRequest();
             }
         }
@@ -51,7 +88,7 @@ namespace BackEndWebShop.Controllers
             try
             {
                 var NewBook = await _BookRepo.AddBookAsync(model);
-                var Book = await _BookRepo.GetByIdBookAsync(NewBook);
+                var Book = await _BookRepo.GetBookByIdAsync(NewBook);
                 return Book == null ? BadRequest() : Ok(Book);
             }
             catch

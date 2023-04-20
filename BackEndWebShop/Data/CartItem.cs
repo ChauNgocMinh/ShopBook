@@ -9,7 +9,7 @@ public partial class CartItem
 
     public string? IdBook { get; set; }
 
-    public string? IdUser { get; set; }
+    public string IdUser { get; set; } = null!;
 
     public int? Number { get; set; }
 
@@ -17,5 +17,4 @@ public partial class CartItem
 
     public virtual Book? IdBookNavigation { get; set; }
 
-    public virtual AspNetUser? IdUserNavigation { get; set; }
 }

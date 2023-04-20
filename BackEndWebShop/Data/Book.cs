@@ -10,6 +10,8 @@ public partial class Book
     public string? Namebook { get; set; }
 
     public string? Category { get; set; }
+    
+    public string? PublishingCompany { get; set; }
 
     public int Price { get; set; }
 

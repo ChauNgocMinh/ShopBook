@@ -28,7 +28,7 @@ namespace BackEndWebShop.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var user = await _userManager.FindByIdAsync(userId);
 
-            var userInfo = new
+            var userInfo = new 
             {
                 Id = user.Id,
                 UserName = user.UserName,
