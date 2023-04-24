@@ -83,6 +83,7 @@ namespace BackEndWebShop.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<ActionResult> AddBook(BookModel model)
         {
             try

@@ -5,6 +5,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using BackEndWebShop.Repository;
+using BackEndWebShop.Helper;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,8 +18,16 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
-    .AddEntityFrameworkStores<BookShopContext>().AddDefaultTokenProviders();
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+{
+    /*options.User.RequireUniqueEmail = true;
+    options.SignIn.RequireConfirmedAccount = true;*/
+})
+.AddRoles<IdentityRole>()
+.AddEntityFrameworkStores<BookShopContext>()
+.AddDefaultTokenProviders();
+
+
 builder.Services.AddDbContext<BookShopContext>(option => option.UseSqlServer(builder.Configuration.GetConnectionString("MyStore")));
 
 
@@ -50,7 +61,15 @@ builder.Services.AddAuthentication(options => {
     };
 });
 
-var app = builder.Build(); 
+// Cấu hình phân quyền
+builder.Services.AddAuthorization(options =>
+{
+    
+    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+    options.AddPolicy("UserOnly", policy => policy.RequireRole("User"));
+});
+
+var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

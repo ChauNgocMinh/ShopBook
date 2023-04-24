@@ -8,6 +8,10 @@ namespace BackEndWebShop.Repository
     {
         public Task<string> SignInAsync(SignInModel model);
         public Task<IdentityResult> SignUpAsync(SignUpModel model);
-
+        public Task<IdentityUser> ShowUserAsync();
+        public Task<IdentityUser> GetUserByEmailAsync(string EmailUser);
+        public Task<IdentityUser> GetUserByNameAsync(string NameUser);
+        public Task<IdentityUser> LockUserByEmailAsync(string IdUser);
+        public Task<IdentityUser> UnlockUserByEmailAsync(string IdUser);
     }
 }

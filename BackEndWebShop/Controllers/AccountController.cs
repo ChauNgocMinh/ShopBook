@@ -3,7 +3,6 @@ using BackEndWebShop.Repository;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authorization;
-
 using Microsoft.AspNetCore.Identity;
 using BackEndWebShop.Data;
 using System.Security.Claims;
@@ -19,26 +18,7 @@ namespace BackEndWebShop.Controllers
             accountRepo = repo;
             _userManager = userManager;
         }
-       
 
-        [Authorize]
-        [HttpGet("me")]
-        public async Task<IActionResult> GetCurrentUser()
-        {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var user = await _userManager.FindByIdAsync(userId);
-
-            var userInfo = new 
-            {
-                Id = user.Id,
-                UserName = user.UserName,
-                Email = user.Email
-                // add other properties you want to return here
-            };
-
-            return Ok(userInfo);
-        }
-       
         [HttpPost("SignUp")]
         public async Task<IActionResult> SignUp(SignUpModel signUpModel)
         {
@@ -62,6 +42,34 @@ namespace BackEndWebShop.Controllers
 
             return Ok(result);
         }
+        [HttpPut("AddAdmin")]
+        public async Task<IActionResult> AddAdmin(string EmailUser)
+        {
+            var User = await _userManager.FindByEmailAsync(EmailUser);
+            var result = await _userManager.AddToRoleAsync(User, "Admin");
+            if (result.Succeeded)
+            {
+                return Ok(await _userManager.RemoveFromRoleAsync(User, "User"));
+            }
+            else
+            {
+                return BadRequest();
+            }
+        }
+        [HttpPut("RemoveAdmin")]
+        public async Task<IActionResult> RemoveAdmin(string EmailUser)
+        {
+            var User = await _userManager.FindByEmailAsync(EmailUser);
+            var result = await _userManager.AddToRoleAsync(User, "User");
+            if (result.Succeeded)
+            {
+                return Ok(await _userManager.RemoveFromRoleAsync(User, "Admin"));
+            }
+            else
+            {
+                return BadRequest();
+            }
 
+        }
     }
 }

@@ -5,6 +5,8 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using BackEndWebShop.Data;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using System.Net.Http.Headers;
 
 namespace BackEndWebShop.Repository
 {
@@ -19,6 +21,32 @@ namespace BackEndWebShop.Repository
             this.userManager = userManager;
             this.signInManager = signInManager;
             this.configuration = configuration;
+        }
+
+        public async Task<IdentityUser> GetUserByEmail(string IdUser)
+        {
+            var User = await userManager.FindByEmailAsync(IdUser);
+            return User;
+        }
+
+        public Task<IdentityUser> GetUserByEmailAsync(string EmailUser)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IdentityUser> GetUserByNameAsync(string NameUser)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IdentityUser> LockUserByEmailAsync(string IdUser)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IdentityUser> ShowUserAsync()
+        {
+            throw new NotImplementedException();
         }
 
         public async Task<string> SignInAsync(SignInModel model)
@@ -46,7 +74,11 @@ namespace BackEndWebShop.Repository
                 signingCredentials: new SigningCredentials(authenKey, SecurityAlgorithms.HmacSha512Signature)
             );
 
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+            return tokenString;
+            HttpClient client = new HttpClient();
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenString);
+       
         }
 
         public async Task<IdentityResult> SignUpAsync(SignUpModel model)
@@ -56,10 +88,15 @@ namespace BackEndWebShop.Repository
                 FirstName = model.FirstName,
                 LastName = model.LastName,
                 Email = model.Email,
-                UserName = model.Email
+                UserName = model.Email,
             };
+            await userManager.CreateAsync(user, model.Password);
+            return await userManager.AddToRoleAsync(user, "User");
+        }
 
-            return await userManager.CreateAsync(user, model.Password);
+        public Task<IdentityUser> UnlockUserByEmailAsync(string IdUser)
+        {
+            throw new NotImplementedException();
         }
     }
 }
