@@ -8,6 +8,8 @@ using BackEndWebShop.Repository;
 using BackEndWebShop.Helper;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using BackEndWebShop.Migrations;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,16 +30,11 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 .AddDefaultTokenProviders();
 
 
-builder.Services.AddDbContext<BookShopContext>(option => option.UseSqlServer(builder.Configuration.GetConnectionString("MyStore")));
-
+builder.Services.AddDbContext<BookShopContext>
+    (option => option.UseSqlServer(builder.Configuration.GetConnectionString("MyStore")));
 
 //Setting auto mapper
 builder.Services.AddAutoMapper(typeof(Program));
-
-//Setting sessions
-builder.Services.AddMvc()
-        .AddSessionStateTempDataProvider();
-builder.Services.AddSession();
 
 //Đăng ký repository
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
@@ -64,10 +61,42 @@ builder.Services.AddAuthentication(options => {
 // Cấu hình phân quyền
 builder.Services.AddAuthorization(options =>
 {
-    
     options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
     options.AddPolicy("UserOnly", policy => policy.RequireRole("User"));
 });
+
+builder.Services.AddSwaggerGen(options =>
+{
+    // Add a security definition for OAuth 2.0
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer"
+    });
+
+    // Add a security requirement to enforce the use of the "Bearer" scheme
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    });
+
+    // Set the OAuth 2.0 authorization options
+    /*options.OperationFilter<AuthorizeCheckOperationFilter>();
+    options.DocumentFilter<AuthorizeCheckDocumentFilter>();*/
+
+    });
+
 
 var app = builder.Build();
 
@@ -81,8 +110,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseSession();
-/*app.UseMvcWithDefaultRoute();
-*/app.MapControllers();
+app.UseCookiePolicy();
+app.MapControllers();
 
-app.Run();
+app.Run(); 

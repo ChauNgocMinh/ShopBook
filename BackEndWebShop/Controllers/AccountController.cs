@@ -42,6 +42,7 @@ namespace BackEndWebShop.Controllers
 
             return Ok(result);
         }
+
         [HttpPut("AddAdmin")]
         public async Task<IActionResult> AddAdmin(string EmailUser)
         {
@@ -49,13 +50,20 @@ namespace BackEndWebShop.Controllers
             var result = await _userManager.AddToRoleAsync(User, "Admin");
             if (result.Succeeded)
             {
-                return Ok(await _userManager.RemoveFromRoleAsync(User, "User"));
+                var user = new ApplicationUser
+                {
+                    IsAdmin = true,
+                };
+                await _userManager.UpdateAsync(user);
+                await _userManager.RemoveFromRoleAsync(User, "User");
+                return Ok();
             }
             else
             {
                 return BadRequest();
             }
         }
+
         [HttpPut("RemoveAdmin")]
         public async Task<IActionResult> RemoveAdmin(string EmailUser)
         {

@@ -35,7 +35,7 @@ public partial class BookShopContext : IdentityDbContext<ApplicationUser>
                 .HasColumnName("ID");
             entity.Property(e => e.Category)
             .HasMaxLength(50)
-                .HasColumnName("CATEGORY");
+                .HasColumnName("CATEGORY"); 
             entity.Property(e => e.PublishingCompany)
                 .HasMaxLength(50)
                 .HasColumnName("PUBLISHING_COMPANY");
@@ -80,6 +80,7 @@ public partial class BookShopContext : IdentityDbContext<ApplicationUser>
                 new IdentityRole() {Name= "Admin", ConcurrencyStamp ="1", NormalizedName="Admin"},
                 new IdentityRole() {Name = "User", ConcurrencyStamp ="2", NormalizedName="User" }
             );
+        
     }
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }

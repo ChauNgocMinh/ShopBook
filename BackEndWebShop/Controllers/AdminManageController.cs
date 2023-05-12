@@ -5,17 +5,18 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BackEndWebShop.Controllers
 {
-    [Authorize(Policy = "AdminOnly")]
     [Route("api/[action]")]
     public class AdminManageController : ControllerBase
     {
-        private readonly UserManager<ApplicationUser> userManager;
+      /*  private readonly UserManager<ApplicationUser> userManager;
 
         private AdminManageController(UserManager<ApplicationUser> _userManager)
         {
             userManager = _userManager;
-        }
-        [HttpPut]
+        }*/
+        [Authorize(Roles = "Admin")]
+
+        [HttpGet]
         public async Task<IActionResult> LockUser()
         {
             return Ok();
