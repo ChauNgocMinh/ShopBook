@@ -9,7 +9,7 @@ using System.Data.SqlTypes;
 
 namespace BackEndWebShop.Controllers
 {
-    [Route("api/[action]")]
+    [Route("Controller/[action]")]
     [ApiController]
     public class BookController : ControllerBase
     {
@@ -33,7 +33,7 @@ namespace BackEndWebShop.Controllers
             }
         }
 
-        [HttpGet("{id}")]
+        [HttpGet]
         public async Task<ActionResult> GetBookById(string id)
         {
             if (id != null)
@@ -45,7 +45,7 @@ namespace BackEndWebShop.Controllers
             }
         }
 
-        [HttpGet("{NameBook}")]
+        [HttpGet]
         public async Task<ActionResult> GetBookByName(string NameBook)
         {
             if (NameBook != null)
@@ -57,7 +57,7 @@ namespace BackEndWebShop.Controllers
                 return BadRequest();
             }
         }
-        [HttpGet("{Category}")]
+        [HttpGet]
         public async Task<ActionResult> GetBookByCategory(string Category)
         {
             if (Category != null)
@@ -69,7 +69,7 @@ namespace BackEndWebShop.Controllers
                 return BadRequest();
             }
         }
-        [HttpGet("{PublishingCompany}")]
+        [HttpGet]
         public async Task<ActionResult> GetBookByPublishingCompany(string PublishingCompany)
         {
             if (PublishingCompany != null)
@@ -83,7 +83,7 @@ namespace BackEndWebShop.Controllers
         }
 
         [HttpPost]
-        [Authorize]
+        [Authorize (Roles = "Admin")]
         public async Task<ActionResult> AddBook(BookModel model)
         {
             try
@@ -98,7 +98,9 @@ namespace BackEndWebShop.Controllers
             }
         }
 
-        [HttpPut("{id}")]
+        [HttpPut]
+        [Authorize(Roles = "Admin")]
+
         public async Task<IActionResult> UpdateBook(string id, BookModel model)
         {
             if (id == model.Id)
@@ -111,7 +113,9 @@ namespace BackEndWebShop.Controllers
                 return BadRequest();
             }
         }
-        [HttpDelete("{id}")]
+        [HttpDelete]
+        [Authorize(Roles = "Admin")]
+
         public async Task<IActionResult> DeleteBook(string id)
         {
             await _BookRepo.DeleteBookAsync(id);

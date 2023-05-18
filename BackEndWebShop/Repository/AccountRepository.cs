@@ -5,7 +5,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using BackEndWebShop.Data;
 using System.Security.Claims;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace BackEndWebShop.Repository
 {
@@ -15,32 +15,40 @@ namespace BackEndWebShop.Repository
         private readonly SignInManager<ApplicationUser> signInManager;
         private readonly IConfiguration configuration;
 
-        public AccountRepository(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IConfiguration configuration)
+        public AccountRepository(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IConfiguration configuration, BookShopContext _context)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
             this.configuration = configuration;
         }
 
-        public async Task<IdentityUser> GetUserByEmailAsync(string EmailUser)
+        public async Task<ApplicationUser> GetUserByEmailAsync(string EmailUser)
         {
             var User = await userManager.FindByEmailAsync(EmailUser);
             return User;
         }
 
-        public Task<IdentityUser> GetUserByNameAsync(string NameUser)
+        public async Task<IdentityResult> LockUserByEmailAsync(string UserName)
         {
-            throw new NotImplementedException();
+            var user = await userManager.FindByEmailAsync(UserName);
+
+            var lockoutEnd = DateTimeOffset.UtcNow.AddYears(100); // Lockout user for 100 years
+
+            return await userManager.SetLockoutEndDateAsync(user, lockoutEnd);
         }
 
-        public Task<IdentityUser> LockUserByEmailAsync(string IdUser)
+        public async Task<IdentityResult> UnlockUserByEmailAsync(string UserName)
         {
-            throw new NotImplementedException();
+            var user = await userManager.FindByEmailAsync(UserName);
+
+            return await userManager.SetLockoutEndDateAsync(user, null);
         }
 
-        public Task<IdentityUser> ShowUserAsync()
+        public async Task<List<string>> ShowUserAsync()
         {
-            throw new NotImplementedException();
+            var user = await userManager.Users.ToListAsync();
+            var ListUser = user.Select(u => u.UserName).ToList();
+            return ListUser;
         }
 
         public async Task<string> SignInAsync(SignInModel model)
@@ -48,29 +56,30 @@ namespace BackEndWebShop.Repository
 
             var result = await signInManager.PasswordSignInAsync(model.Email, model.Password, false, false);
             var user = await userManager.FindByEmailAsync(model.Email);
+            
             var roles = await userManager.GetRolesAsync(user);
-          /*  Console.WriteLine(Roles);
-            Console.Write(user);*/
 
+            // Nếu result không Succeeded thì return về chuỗi rỗng
             if (!result.Succeeded)
             {
                 return string.Empty;
             }
-
-
+            //Cấu hình Claim
 
             var authClaims = new List<Claim>
             {
-                new Claim(ClaimTypes.Email, model.Email),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            };
+/*                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+*/            };
+            //Thêm Email vào claim
+            authClaims.Add(new Claim("Email", model.Email));
+            // Thêm toàn bộ role của user vào Claim
             foreach (var role in roles)
             {
                 authClaims.Add(new Claim("role", role));
             }
 
             var authSigninKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]));
-
+            // Cấu hình chuỗi token
             var token = new JwtSecurityToken(
                 issuer: configuration["JWT:ValidIssuer"],
                 audience: configuration["JWT:ValidAudience"],
@@ -78,7 +87,7 @@ namespace BackEndWebShop.Repository
                 claims: authClaims,
                 signingCredentials: new SigningCredentials(authSigninKey, SecurityAlgorithms.HmacSha256Signature)
                 );
-
+            // Trả về chuỗi token
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
@@ -97,9 +106,6 @@ namespace BackEndWebShop.Repository
             return await userManager.AddToRoleAsync(user, "User");
         }
 
-        public Task<IdentityUser> UnlockUserByEmailAsync(string IdUser)
-        {
-            throw new NotImplementedException();
-        }
+     
     }
 }
