@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using BackEndWebShop.Repository;
+using System;
 using BackEndWebShop.Helper;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -39,6 +40,7 @@ builder.Services.AddAutoMapper(typeof(Program));
 //Đăng ký repository
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<IBookRepository, BookRepository>();
+builder.Services.AddScoped<ICartRepository, CartRepository>();
 
 //Setting Authentication JWT
 builder.Services.AddAuthentication(options => {
@@ -97,8 +99,8 @@ builder.Services.AddSwaggerGen(options =>
 
     });
 
-
-var app = builder.Build();
+/*builder.Services.AddHttpContextAccessor();
+*/var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

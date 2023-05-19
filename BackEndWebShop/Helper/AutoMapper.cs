@@ -9,6 +9,8 @@ namespace BackEndWebShop.Mapper
         public AutoMapper()
         {
             CreateMap<Book, BookModel>().ReverseMap();
+            CreateMap<CartItem, CartItemModel>().ReverseMap();
+            CreateMap<Bill, BillModel>().ReverseMap();
         }
     }
 }
