@@ -30,6 +30,10 @@ namespace BackEndWebShop.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
@@ -44,9 +48,6 @@ namespace BackEndWebShop.Migrations
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsAdmin")
-                        .HasColumnType("bit");
 
                     b.Property<string>("LastName")
                         .IsRequired()
@@ -85,6 +86,9 @@ namespace BackEndWebShop.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
+                    b.Property<bool>("ValidationCode")
+                        .HasColumnType("bit");
+
                     b.HasKey("Id");
 
                     b.HasIndex("NormalizedEmail")
@@ -96,6 +100,35 @@ namespace BackEndWebShop.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
+                });
+
+            modelBuilder.Entity("BackEndWebShop.Data.Bill", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)")
+                        .HasColumnName("ID");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("EMAIL");
+
+                    b.Property<DateTime>("BuyingDate")
+                        .HasColumnType("datetime")
+                        .HasColumnName("BUYING_DATE");
+
+                    b.Property<string>("IdCartItem")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)")
+                        .HasColumnName("ID_CART_ITEM");
+
+                    b.HasKey("Id", "Email");
+
+                    b.HasIndex("IdCartItem", "Email");
+
+                    b.ToTable("BILL", (string)null);
                 });
 
             modelBuilder.Entity("BackEndWebShop.Data.Book", b =>
@@ -115,7 +148,7 @@ namespace BackEndWebShop.Migrations
                         .HasColumnType("nvarchar(50)")
                         .HasColumnName("NAMEBOOK");
 
-                    b.Property<int>("Price")
+                    b.Property<int?>("Price")
                         .HasColumnType("int")
                         .HasColumnName("PRICE");
 
@@ -135,31 +168,39 @@ namespace BackEndWebShop.Migrations
 
             modelBuilder.Entity("BackEndWebShop.Data.CartItem", b =>
                 {
-                    b.Property<string>("IdCartItem")
+                    b.Property<string>("Id")
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)")
-                        .HasColumnName("ID_CART_ITEM");
+                        .HasColumnName("ID");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("EMAIL");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime")
+                        .HasColumnName("DATE");
 
                     b.Property<string>("IdBook")
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)")
                         .HasColumnName("ID_BOOK");
 
-                    b.Property<string>("IdUser")
-                        .IsRequired()
-                        .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)")
-                        .HasColumnName("ID_USER");
-
                     b.Property<int?>("Number")
                         .HasColumnType("int")
                         .HasColumnName("NUMBER");
+
+                    b.Property<bool?>("Status")
+                        .HasColumnType("bit")
+                        .HasColumnName("STATUS");
 
                     b.Property<double?>("TotalItem")
                         .HasColumnType("float")
                         .HasColumnName("TOTAL_ITEM");
 
-                    b.HasKey("IdCartItem");
+                    b.HasKey("Id", "Email")
+                        .HasName("PK_CART_ITEM_1");
 
                     b.HasIndex("IdBook");
 
@@ -195,14 +236,14 @@ namespace BackEndWebShop.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "72da48f9-c05f-420e-8137-3f121916979a",
+                            Id = "84ba9c66-4513-4dfc-a92e-d731dfd4da41",
                             ConcurrencyStamp = "1",
                             Name = "Admin",
                             NormalizedName = "Admin"
                         },
                         new
                         {
-                            Id = "546c4744-11e2-4ff0-b024-6c51af8d7047",
+                            Id = "2ebccb2f-465a-46f0-83ce-e5ddc04ce347",
                             ConcurrencyStamp = "2",
                             Name = "User",
                             NormalizedName = "User"
@@ -315,6 +356,17 @@ namespace BackEndWebShop.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("BackEndWebShop.Data.Bill", b =>
+                {
+                    b.HasOne("BackEndWebShop.Data.CartItem", "IdNavigation")
+                        .WithMany("Bills")
+                        .HasForeignKey("IdCartItem", "Email")
+                        .IsRequired()
+                        .HasConstraintName("FK_CART_BUY_CART_ITEM");
+
+                    b.Navigation("IdNavigation");
+                });
+
             modelBuilder.Entity("BackEndWebShop.Data.CartItem", b =>
                 {
                     b.HasOne("BackEndWebShop.Data.Book", "IdBookNavigation")
@@ -379,6 +431,11 @@ namespace BackEndWebShop.Migrations
             modelBuilder.Entity("BackEndWebShop.Data.Book", b =>
                 {
                     b.Navigation("CartItems");
+                });
+
+            modelBuilder.Entity("BackEndWebShop.Data.CartItem", b =>
+                {
+                    b.Navigation("Bills");
                 });
 #pragma warning restore 612, 618
         }

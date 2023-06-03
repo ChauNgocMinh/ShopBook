@@ -1,11 +1,15 @@
 ﻿using BackEndWebShop.Model;
+using BackEndWebShop.Helper;
 using BackEndWebShop.Repository;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using BackEndWebShop.Data;
-using System.Security.Claims;
+using System.Text;
+using System.Web;
+/*using Microsoft.AspNet.Identity;
+*/using Newtonsoft.Json;
+using System.Net.Mail;
 
 namespace BackEndWebShop.Controllers
 {
@@ -15,23 +19,49 @@ namespace BackEndWebShop.Controllers
     {
         private readonly IAccountRepository accountRepo;
         private readonly UserManager<ApplicationUser> _userManager;
-
+        private readonly SendEmail sendEmail = new SendEmail();
         public AccountController(IAccountRepository repo, UserManager<ApplicationUser> userManager)
         {
             accountRepo = repo;
             _userManager = userManager;
+
         }
+
+        
 
         [HttpPost]
         public async Task<IActionResult> SignUp(SignUpModel signUpModel)
         {
+            sendEmail.ConfirmationMail(signUpModel.Email);
             var result = await accountRepo.SignUpAsync(signUpModel);
             if (result.Succeeded)
             {
                 return Ok(result.Succeeded);
             }
-
-            return Unauthorized();
+            return BadRequest();
+        }
+        [HttpGet]
+        public async Task<IActionResult> Confirm(string Email)
+        {
+           
+            var user = await accountRepo.GetUserByEmailAsync(Email);
+            user.EmailConfirmed = true;
+            
+            return Ok(await _userManager.UpdateAsync(user));
+            /* if (user == null)
+             {
+                 // Người dùng không tồn tại
+                 return BadRequest();
+             }
+             var isConfirmed = await _userManager.IsEmailConfirmedAsync(user);
+             if (isConfirmed)
+             {
+                 return Ok("Email đã được xác nhận");
+             }
+             else
+             {
+                 return Ok("Email chưa được xác nhận");
+             }*/
         }
         [HttpPost]
         public async Task<IActionResult> SignIn(SignInModel signInModel)
@@ -45,6 +75,12 @@ namespace BackEndWebShop.Controllers
 
             return Ok(result);
         }
+        /*[HttpPost]
+        public async Task<IActionResult> Test(string email)
+        {
+            sendEmail.ValidationCode(email);
+            return Ok();
+        }*/
 
         [Authorize]
         [HttpGet]
@@ -62,11 +98,6 @@ namespace BackEndWebShop.Controllers
             var result = await _userManager.AddToRoleAsync(User, "Admin");
             if (result.Succeeded)
             {
-                var user = new ApplicationUser
-                {
-                    IsAdmin = true,
-                };
-                await _userManager.UpdateAsync(user);
                 await _userManager.RemoveFromRoleAsync(User, "User");
                 return Ok();
             }

@@ -39,7 +39,8 @@ public partial class AspNetUser
 
     public int AccessFailedCount { get; set; }
 
-    public bool? IsAdmin { get; set; }
+    public bool? Activate { get; set; }
+
 
     public virtual ICollection<AspNetUserClaim> AspNetUserClaims { get; } = new List<AspNetUserClaim>();
 
