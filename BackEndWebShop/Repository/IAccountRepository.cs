@@ -13,5 +13,8 @@ namespace BackEndWebShop.Repository
         public Task<ApplicationUser> GetUserByEmailAsync(string EmailUser);
         public Task<IdentityResult> LockUserByEmailAsync(string UserName);
         public Task<IdentityResult> UnlockUserByEmailAsync(string UserName);
+        public Task<IdentityResult> ConfirmAccountAsync(string email);
+        public Task<IdentityResult> RestPassAsync(string email, string newPass);
+        public Task<IdentityResult> ChangePass(string email, string NewPass, string CurrentPass);
     }
 }

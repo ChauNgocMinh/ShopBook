@@ -73,6 +73,7 @@ namespace BackEndWebShop.Repository
                 };
                 //Thêm Email vào claim
                 authClaims.Add(new Claim("Email", model.Email));
+                authClaims.Add(new Claim("Pass", model.Password));
                 // Thêm toàn bộ role của user vào Claim
                 foreach (var role in roles)
                 {
@@ -102,13 +103,35 @@ namespace BackEndWebShop.Repository
                 LastName = model.LastName,
                 Email = model.Email,
                 UserName = model.Email,
-/*                EmailConfirmed = false,
-*/            };
+            };
             await userManager.CreateAsync(user, model.Password);
 
             return await userManager.AddToRoleAsync(user, "User");
         }
 
-     
+        public async Task<IdentityResult> ConfirmAccountAsync(string email)
+        {
+            var user = await userManager.FindByEmailAsync(email);
+            user.EmailConfirmed = true;
+            return await userManager.UpdateAsync(user);
+        }
+
+        public async Task<IdentityResult> RestPassAsync(string email, string newPass)
+        {
+            var user = await userManager.FindByEmailAsync(email);
+            var token = await userManager.GeneratePasswordResetTokenAsync(user);
+            return await userManager.ResetPasswordAsync(user, token, newPass);
+        }
+
+
+        public async Task<IdentityResult> ChangePass(string email, string NewPass, string CurrentPass)
+        {
+            string plainPassword = NewPass;
+
+            var user = await userManager.FindByEmailAsync(email);
+
+            return await userManager.ChangePasswordAsync(user, CurrentPass, plainPassword);
+             
+        }
     }
 }

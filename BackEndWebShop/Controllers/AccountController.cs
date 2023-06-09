@@ -10,6 +10,15 @@ using System.Web;
 /*using Microsoft.AspNet.Identity;
 */using Newtonsoft.Json;
 using System.Net.Mail;
+using System.Net;
+using Microsoft.Ajax.Utilities;
+using static System.Net.Mime.MediaTypeNames;
+using System.ComponentModel;
+using System.Drawing;
+using System.Runtime.InteropServices;
+using System.Security.Policy;
+using System;
+using Microsoft.AspNetCore.Authentication;
 
 namespace BackEndWebShop.Controllers
 {
@@ -32,36 +41,20 @@ namespace BackEndWebShop.Controllers
         [HttpPost]
         public async Task<IActionResult> SignUp(SignUpModel signUpModel)
         {
-            sendEmail.ConfirmationMail(signUpModel.Email);
+            sendEmail.ActivateAccount(signUpModel.Email);
             var result = await accountRepo.SignUpAsync(signUpModel);
             if (result.Succeeded)
             {
-                return Ok(result.Succeeded);
+                return Ok("Vui lòng xác nhận email để thực hiện");
             }
             return BadRequest();
         }
         [HttpGet]
         public async Task<IActionResult> Confirm(string Email)
         {
-           
-            var user = await accountRepo.GetUserByEmailAsync(Email);
-            user.EmailConfirmed = true;
-            
-            return Ok(await _userManager.UpdateAsync(user));
-            /* if (user == null)
-             {
-                 // Người dùng không tồn tại
-                 return BadRequest();
-             }
-             var isConfirmed = await _userManager.IsEmailConfirmedAsync(user);
-             if (isConfirmed)
-             {
-                 return Ok("Email đã được xác nhận");
-             }
-             else
-             {
-                 return Ok("Email chưa được xác nhận");
-             }*/
+            await accountRepo.ConfirmAccountAsync(Email);
+            return Ok("Tài khoản được tạo thành công!!!");
+          
         }
         [HttpPost]
         public async Task<IActionResult> SignIn(SignInModel signInModel)
@@ -75,12 +68,6 @@ namespace BackEndWebShop.Controllers
 
             return Ok(result);
         }
-        /*[HttpPost]
-        public async Task<IActionResult> Test(string email)
-        {
-            sendEmail.ValidationCode(email);
-            return Ok();
-        }*/
 
         [Authorize]
         [HttpGet]
@@ -89,6 +76,45 @@ namespace BackEndWebShop.Controllers
             var userEmail = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "Email")?.Value;
             var user = await _userManager.FindByEmailAsync(userEmail);
             return Ok(user);
+        }
+
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> ChagePass(string NowPass, string newPass, string ConfirmPassword)
+        {
+            var EmailUser = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "Email")?.Value;
+            var CurrentPass = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "Pass")?.Value;
+            if(NowPass == CurrentPass && newPass == ConfirmPassword)
+            {
+                await accountRepo.ChangePass(EmailUser, newPass, CurrentPass);
+                return Ok("Đổi mật khẩu thành công");
+            }
+            return BadRequest("Thông tin không chính xác");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> RestPass(string Email)
+        {
+            sendEmail.ChagePassWord(Email);
+            return Ok("Vui lòng xác nhận email để thực hiện");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ConfiPassword(string Email)
+        {
+            string NewPass = "123Aa!";
+            try
+            {
+/*                var user = await _userManager.FindByEmailAsync(Email);
+*/
+                await accountRepo.RestPassAsync(Email, NewPass);
+
+                return Ok("Mật khẩu mới: 123Aa!");
+            }
+            catch(Exception ex)
+            { 
+                return BadRequest(ex.ToString());
+            }
         }
 
         [HttpPost]
